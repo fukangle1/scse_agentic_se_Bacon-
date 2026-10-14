@@ -1,4 +1,3 @@
-
 import json
 from ollama import chat
 
@@ -7,17 +6,34 @@ You are a developer agent for a mobile robot navigation system.
 You will receive a navigation plan from the Planner Agent.
 Your job is to write Python code that implements this plan.
 
-Rules:
-- The output must be valid Python code only. No markdown, no explanations.
-- The code must contain a function called decide_next_move(state).
-- The function must return one of: "FORWARD", "LEFT", "RIGHT", "STOP".
-- The input 'state' is a dictionary with boolean keys: "goal_ahead", "goal_on_left", "goal_on_right", "front_blocked", "left_blocked", "right_blocked".
-- The code must handle blocked directions and goal direction.
-- The code must never move into a blocked direction.
-- If no safe direction is available, the robot must stop.
+STRICT RULES:
+- Output ONLY Python code. No explanation, no markdown, no backticks.
+- The VERY FIRST LINE of your output must be: def decide_next_move(state):
+- The function must return exactly one of: "FORWARD", "LEFT", "RIGHT", "STOP".
+- The input 'state' is a dictionary with boolean keys:
+    "goal_ahead", "goal_on_left", "goal_on_right",
+    "front_blocked", "left_blocked", "right_blocked".
+- Never return a direction whose "_blocked" flag is True.
+- If no safe direction is available, return "STOP".
+- Prefer moving toward the goal when safe.
 
-Output ONLY Python code.
+Example output format (follow this exactly):
+def decide_next_move(state):
+    if state["goal_ahead"] and not state["front_blocked"]:
+        return "FORWARD"
+    if state["goal_on_left"] and not state["left_blocked"]:
+        return "LEFT"
+    if state["goal_on_right"] and not state["right_blocked"]:
+        return "RIGHT"
+    if not state["front_blocked"]:
+        return "FORWARD"
+    if not state["left_blocked"]:
+        return "LEFT"
+    if not state["right_blocked"]:
+        return "RIGHT"
+    return "STOP"
 """
+
 
 def validate_code(code_text):
     if not isinstance(code_text, str):
@@ -33,6 +49,7 @@ def validate_code(code_text):
 
     return True
 
+
 def run_developer(plan):
     last_error = None
     for attempt in range(1, 4):
@@ -43,7 +60,9 @@ def run_developer(plan):
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": json.dumps(plan)}
-            ]
+            ],
+            think=False,
+            options={"num_predict": 1024, "temperature": 0.2},
         )
 
         raw_text = response.message.content.strip()
@@ -77,15 +96,15 @@ Now you have received:
 Your job is to write an IMPROVED version of decide_next_move(state)
 that addresses the issues found in the review and benchmark.
 
-Rules:
-- Output ONLY valid Python code. No markdown, no explanations.
-- The code must contain a function called decide_next_move(state).
-- The function must return one of: "FORWARD", "LEFT", "RIGHT", "STOP".
+STRICT RULES:
+- Output ONLY Python code. No explanation, no markdown, no backticks.
+- The VERY FIRST LINE of your output must be: def decide_next_move(state):
+- The function must return exactly one of: "FORWARD", "LEFT", "RIGHT", "STOP".
 - The input 'state' is a dictionary with boolean keys:
     "goal_ahead", "goal_on_left", "goal_on_right",
     "front_blocked", "left_blocked", "right_blocked".
-- The code must never move into a blocked direction.
-- If no safe direction is available, the robot must stop.
+- Never return a direction whose "_blocked" flag is True.
+- If no safe direction is available, return "STOP".
 - Keep the interface identical to the original code.
 
 Output ONLY Python code.
@@ -93,10 +112,6 @@ Output ONLY Python code.
 
 
 def run_developer_revision(original_code, review_notes, benchmark_report, requirements, plan):
-    """
-    Run the Developer Agent in revision mode.
-    Returns a new version of decide_next_move as a string.
-    """
     last_error = None
 
     for attempt in range(1, 4):

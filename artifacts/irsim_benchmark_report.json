@@ -18,8 +18,8 @@
       "efficiency_passed": true,
       "final_pose": [
         7.815877736477747,
-        1.35416409613743,
-        -0.7200000000000006
+        1.3541640961374295,
+        -0.7200000000000002
       ],
       "history_length": 150,
       "world": "irsim_worlds/world_easy.yaml"
@@ -35,7 +35,7 @@
       "final_pose": [
         7.712490771958734,
         4.253312110735628,
-        -0.40000000000000036
+        -0.40000000000000013
       ],
       "history_length": 148,
       "world": "irsim_worlds/world_medium.yaml"
@@ -51,7 +51,7 @@
       "final_pose": [
         7.67814415627635,
         8.127051090332003,
-        0.0
+        -5.551115123125783e-17
       ],
       "history_length": 187,
       "world": "irsim_worlds/world_hard.yaml"
@@ -67,7 +67,7 @@
       "final_pose": [
         7.963211951972691,
         4.376850671335502,
-        -1.200000000000001
+        -1.2000000000000006
       ],
       "history_length": 193,
       "world": "irsim_worlds/world_custom.yaml"
